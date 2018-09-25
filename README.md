@@ -1,7 +1,7 @@
 # hw02-liming17
 hw02-liming17 created by GitHub Classroom
 
-*PLEASE USE THE FOLLOWING LINK TO SEE THE HOMEWORK, THANKS*
+*PLEASE USE THE FOLLOWING LINK TO THE HOMEWORK, THANKS*
 
 For the last part of the homework, I use knitr::kable() and dplyr to create a table, but it can only render perfectly in an html format. So please use the following link to see the html version of the homework: 
 
