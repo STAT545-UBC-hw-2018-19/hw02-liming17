@@ -1,0 +1,273 @@
+---
+title: "hw02_gapminder"
+output: github_document
+author: "Liming Liu"
+date: '2018-09-20'
+always_allow_html: yes
+---
+
+
+
+# Explore Gapminder and use dplyr
+
+## Bring rectangular data in
+
+```{r}
+library(tidyverse)
+library(gapminder)
+```
+
+## Smell test the data
+
+#### 1.The type of gapminder
+
+```{r}
+typeof(gapminder)
+```
+
+#### 2. The class of gapminder
+
+```{r}
+class(gapminder)
+```
+
+#### 3. How many rows and columns?
+
+1704 rows,6 columns
+
+```{r}
+nrow(gapminder)
+```
+
+```{r}
+ncol(gapminder)
+```
+
+
+#### 4. Can you get these facts about “extent” or “size” in more than one way? Can you imagine different functions being useful in different contexts?
+
+1. Use array()
+
+```{r}
+array(gapminder)
+```
+
+2. Use dim()
+
+```{r}
+dim(gapminder)
+```
+
+3. Use dim_desc()
+
+```{r}
+dim_desc(gapminder)
+```
+
+4. Use dim.data.frame()
+
+```{r}
+dim.data.frame(gapminder)
+```
+
+
+
+#### 5. What data type is each variable?
+
+```{r}
+head(gapminder)
+```
+
+From the results above, we can see that column "country", "continent" are factor; column "year", "pop" are integer; column "lifeExp", "gdpPercap" are double
+
+## Explore individual variables
+Pick at least one categorical variable and at least one quantitative variable to explore.
+
+select variables in "continent" and "pop" columns
+
+```{r}
+test_var <- select(gapminder, continent, pop)
+```
+
+
+#### 1. What are possible values (or range, whichever is appropriate) of each variable?
+
+```{r}
+summary(test_var)
+```
+
+So we can see that there are 6 kinds of factors in "continent",which include "Africa", "Americas", "Asia", "Europe", and "Oceania" For the quantitative variables in "pop", the minimum is 6.001e+04, and the maximum is 1.319e+09.
+
+#### 2. What values are typical? What’s the spread? What’s the distribution? Etc., tailored to the variable at hand.
+
+In the "pop" data
+
+the mean is:
+
+```{r}
+mean(test_var$pop)
+```
+
+the range is:
+
+```{r}
+range(test_var$pop)
+```
+
+The quantile is:
+
+```{r}
+quantile(test_var$pop)
+```
+
+
+Check the spread for each continent
+
+```{r}
+Af <- filter(test_var, continent == "Africa")
+Am <- filter(test_var, continent == "Americas")
+As <- filter(test_var, continent == "Asia")
+Eu <- filter(test_var, continent == "Europe")
+Oc <- filter(test_var, continent =="Oceania")
+```
+
+range in Africa
+
+```{r}
+range(Af$pop)
+```
+
+range in Americas
+
+```{r}
+range(Am$pop)
+```
+
+range in Asia
+
+```{r}
+range(As$pop)
+```
+
+range in Europe
+
+```{r}
+range(Eu$pop)
+```
+
+range in Oceania
+
+```{r}
+range(Oc$pop)
+```
+
+
+The distribution for all the data in pop
+
+```{r}
+ggplot(test_var, aes(pop)) + geom_histogram()
+```
+
+distribution in Africa
+
+```{r}
+ggplot(Af, aes(pop)) + geom_histogram(bins = 30)
+```
+
+distribution in Americas
+
+```{r}
+ggplot(Am, aes(pop)) + geom_histogram(bins = 30)
+```
+
+distribution in Asia
+
+```{r}
+ggplot(As, aes(pop)) + geom_histogram(bins = 30)
+```
+
+distribution in Europe
+
+```{r}
+ggplot(Eu, aes(pop)) + geom_histogram(bins = 30)
+```
+
+distribution in Oceania
+
+```{r}
+ggplot(Oc, aes(pop)) + geom_histogram(bins = 30)
+```
+
+## Explore various plot types
+
+Make a few plots, probably of the same variable you chose to characterize numerically. You can use the plot types we went over in class (cm006) to get an idea of what you’d like to make. Try to explore more than one plot type.
+
+#### 1. A scatterplot of two quantitative variables
+
+the scatter plot of year and pop
+
+```{r}
+ggplot(gapminder, aes(year, pop)) + scale_y_log10() + geom_point(alpha=0.1)
+```
+
+#### 2. A plot of one quantitative variable
+
+the density plot of lifeExp
+
+```{r}
+ggplot(gapminder, aes(lifeExp)) + geom_density(fill="pink")
+```
+
+#### 3. A plot of one quantitative variable and one categorical
+
+box plot for each continent
+
+```{r}
+ggplot(test_var, aes(continent, pop)) + scale_y_log10() + geom_boxplot()
+```
+
+## Use filter(), select() and %>%
+
+After 1980, the lifeExp in each continent, and build a scatter plot
+
+```{r}
+gapminder %>% 
+  select(continent,lifeExp, year) %>% 
+  filter(year > 1980) %>% 
+  ggplot(aes(continent, lifeExp)) + geom_point(alpha=0.1)
+```
+
+## But I want to do more!
+
+#### 1. Evaluate this code and describe the result. Presumably the analyst’s intent was to get the data for Rwanda and Afghanistan. Did they succeed? Why or why not? If not, what is the correct way to do this?
+
+```{r}
+filter(gapminder, country == c("Rwanda", "Afghanistan"))
+```
+
+They didn't succeed, because c() creates a vector with "Rwanda" and "Afghanistan", so it just filters the data with this combination. And the correct way is to use "|" :
+
+```{r}
+filter(gapminder, country=="Rwanda"|country=="Afghanistan")
+```
+
+#### 2. Present numerical tables in a more attractive form, such as using knitr::kable().Use more of the dplyr functions for operating on a single table.
+
+
+```{r}
+library(knitr)
+library(kableExtra)
+```
+
+
+```{r}
+gapminder[1:10, ] %>% 
+  mutate(continent = cell_spec(continent, color = "white", bold = T, background = spec_color(1:10, end = 0.9, option = "A", direction = -1))) %>% 
+  mutate_if(is.numeric, function(x) {
+    cell_spec(x, bold = T, color = spec_color(x, end = 0.9))
+  }) %>% 
+  kable(escape = F, align = "c") %>% 
+  kable_styling(c("striped", "condensed"))
+```
+
+
